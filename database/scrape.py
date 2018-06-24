@@ -29,8 +29,7 @@ def main():
         writer.writerow(['DateTime', 'Latitude', 'Longitude', 'Depth', 'Magnitude', 'MaxIntensity', 'MaxIntensityStr', 'Eqicenter', 'EventID'])
 
         latestID = 0
-        #rows = fetch('1923/01/01', '00:00')
-        rows = fetch('1943/01/01', '00:00')
+        rows = fetch('1923/01/01', '00:00')
         #rows = fetch('2018/01/01', '00:00')
 
         while rows and int(rows[-1][-1]) != latestID:
@@ -44,7 +43,6 @@ def main():
 
             time.sleep(1)
             rows = fetch(latest[0][:10], latest[0][11:16])
-            print(rows)
 
 
 def fetch(date, time):
@@ -76,7 +74,11 @@ def fetch(date, time):
     if match:
         hyp = match.group(1)
         lines = hyp.split(',')
-        rows = [parse(line) for line in lines]
+
+        rows = []
+        for line in lines:
+            row = parse(line)
+            if row: rows.append(row)
         rows.reverse()
         return rows
 
@@ -95,6 +97,12 @@ def parse(line):
 
     # DateTime, Latitude, Longitude, Depth, Magnitude, MaxIntensity, MaxIntensityStr, Eqicenter, EventID
     data = [time, elems[2], elems[3], elems[5], magnitude, maxint, maxintstr, txts[1], eventID]
+
+    # invalid date format
+    match = re.search(r"月", time)
+    if match:
+        print(data)
+        return
 
     return data
 
